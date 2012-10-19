@@ -1,2 +1,2 @@
-Unofficial ilymotion sdk for Python
-===================================
+Unofficial Dailymotion sdk for Python
+=====================================
