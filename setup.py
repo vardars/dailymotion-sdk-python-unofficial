@@ -19,7 +19,7 @@ __doc__ = long_description()
 
 setup(
     name='dailymotion-unofficial',
-    version=__version__,
+    version='0.1',
     url='https://github.com/amirouche/dailymotion-sdk-python-unofficial/',
     license='MIT',
     author='Amirouche Boubekki',
