@@ -85,7 +85,7 @@ class PaginatedList(CachedMagicAttributes):
         super(PaginatedList, self).__init__(access_token, path, **query)
         self.klass = klass
 
-    def __iter__(self):
+    def __call__(self):
         for element in self.list:
             yield self.klass(element)
 
