@@ -17,9 +17,6 @@ def long_description():
 __doc__ = long_description()
 
 
-from printemps import __version__
-
-
 setup(
     name='dailymotion-unofficial',
     version=__version__,
