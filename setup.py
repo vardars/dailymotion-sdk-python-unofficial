@@ -27,7 +27,7 @@ setup(
     license='MIT',
     author='Amirouche Boubekki',
     author_email='amirouche.boubekki@gmail.com',
-    description='Python for dailymotion API',
+    description='Python API of Dailymotion REST API',
     long_description=__doc__,
     py_modules=['dailymotion'],
     zip_safe=False,
