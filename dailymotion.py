@@ -64,8 +64,14 @@ class Dailymotion(object):
 
 
 class CachedMagicAttributes(Dailymotion):
-
+    # this is a rather smart class so the name
+    # doesn't cover everything yet
     cached = None
+
+    def __init__(self, access_token=None, path='', values=None, **query):
+        super(CachedMagicAttributes, self).__init__(access_token, path, **query)
+        for key, value in values.iteritems():
+            setattr(self, key, value)
 
     def __getattr__(self, attr):
         if not self.cached:
@@ -87,7 +93,7 @@ class PaginatedList(CachedMagicAttributes):
 
     def __call__(self):
         for element in self.list:
-            yield self.klass(element)
+            yield self.klass(values=element)
 
 
 def embed(url, maxwidth=None, maxheight=None, wmode=None):
