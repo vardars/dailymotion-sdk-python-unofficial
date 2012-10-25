@@ -6,13 +6,16 @@ DAILYMOTION_BASE_API_URL = 'https://api.dailymotion.com/'
 
 
 def get(access_token, path, **query):
-    oauth_header = 'OAuth %s' % access_token
-    headers = {'Authorization': oauth_header}
+    if access_token:
+        oauth_header = 'OAuth %s' % access_token
+        headers = {'Authorization': oauth_header}
+    else:
+        headers = {}
     query_string = ''
     for key, value in query.iteritems():
-        if value:
+        if value is not None:
             query_string += '%s=%s&' % (key, value)
-    url = DAILYMOTION_BASE_API_URL + path + '?' + query_string
+    url = DAILYMOTION_BASE_API_URL + path + '?' + query_string[:-1]
     return json.loads(requests.get(url, headers=headers).content)
 
 
@@ -56,8 +59,8 @@ class Dailymotion(object):
     def comment(self, id):
         return Comment(self.access_token, 'comment/' + id)
 
-    def videos(self, page=None, limit=None):
-        return PaginatedList(Video, self.access_token, 'videos', page=page, limit=limit)
+    def videos(self, page=None, limit=None, search=None):
+        return PaginatedList(Video, self.access_token, 'videos', page=page, limit=limit, search=search)
 
     def video(self, id):
         return Comment(self.access_token, 'video/' + id)
@@ -66,17 +69,24 @@ class Dailymotion(object):
 class CachedMagicAttributes(Dailymotion):
     # this is a rather smart class so the name
     # doesn't cover everything yet
-    cached = None
 
     def __init__(self, access_token=None, path='', values=None, **query):
         super(CachedMagicAttributes, self).__init__(access_token, path, **query)
-        for key, value in values.iteritems():
-            setattr(self, key, value)
+        if values:
+            self.cached = values
+            for key, value in values.iteritems():
+                setattr(self, key, value)
+        else:
+            self.cached = False
+
+    def value(self):
+        if not self.cached:
+            self.cached = get(self.access_token, self.path, **self.query)
+        return self.cached
 
     def __getattr__(self, attr):
         if not self.cached:
-            self.cached = get(self.access_token, self.path, self.query)
-            # avoid future call to __getattr__ and allow autocompletion in repl
+            self.value()
             for key, value in self.cached.iteritems():
                 setattr(self, key, value)
             # return the value if it's found
@@ -96,7 +106,7 @@ class PaginatedList(CachedMagicAttributes):
             yield self.klass(values=element)
 
 
-def embed(url, maxwidth=None, maxheight=None, wmode=None):
+def embed(url, maxwidth=None, maxheight=None, wmode=None, autoplay=False):
     service = 'http://www.dailymotion.com/services/oembed?format=json&url='
     url = service + url
     if wmode:
@@ -105,8 +115,10 @@ def embed(url, maxwidth=None, maxheight=None, wmode=None):
         url = url + '&maxheight=' + maxheight
     if maxwidth:
         url = url + '&maxwidth=' + maxwidth
+    if autoplay:
+        url = url + '&autoplay=1'
     data = json.loads(requests.get(url).content)
-    return CachedMagicAttributes(data)
+    return Embed(values=data)
 
 
 class Embed(CachedMagicAttributes):
@@ -193,14 +205,14 @@ class Video(CachedMagicAttributes):
     class Playlists(PaginatedList):
         pass
 
-    def __init__(self, klass, access_token, path, **query):
-        super(Video, self).__init__(klass, access_token, path, **query)
-        self.subtitles = self.Subtitles(Subtitle, path + 'subtitles/')
-        self.comments = self.Comments(Comment, path + 'comments/')
-        self.contests = PaginatedList(Contest, path + 'contests/')
-        self.groups = self.Groups(Group, path + 'comments/')
-        self.playlist = self.Playlists(Playlist, path + 'playlists/')
-        self.related = PaginatedList(Video, path + 'related')
+    def __init__(self, access_token=None, path='', values=None, **query):
+        super(Video, self).__init__(access_token, path, values, **query)
+        self.subtitles = self.Subtitles(Subtitle, access_token, path + 'subtitles/')
+        self.comments = self.Comments(Comment, access_token, path + 'comments/')
+        self.contests = PaginatedList(Contest, access_token, path + 'contests/')
+        self.groups = self.Groups(Group, access_token, path + 'comments/')
+        self.playlist = self.Playlists(Playlist, access_token, path + 'playlists/')
+        self.related = PaginatedList(Video, access_token, path + 'related')
 
 
 class Group(CachedMagicAttributes):
@@ -216,8 +228,8 @@ class Group(CachedMagicAttributes):
         def remove(self, id):
             raise NotImplementedError
 
-    def __init__(self, klass, access_token, path, **query):
-        super(Video, self).__init__(klass, access_token, path, **query)
+    def __init__(self, access_token=None, path='', values=None, **query):
+        super(Video, self).__init__(access_token=None, path='', values=None, **query)
         self.subtitles = self.Members(User, path + 'members/')
 
 
@@ -246,8 +258,8 @@ class Playlist(CachedMagicAttributes):
         def remove(self, id):
             raise NotImplementedError
 
-    def __init__(self, klass, access_token, path, **query):
-        super(Video, self).__init__(klass, access_token, path, **query)
+    def __init__(self, access_token=None, path='', values=None, **query):
+        super(Video, self).__init__(access_token=None, path='', values=None, **query)
         self.videos = self.Videos(Video, path + 'videos/')
 
 
