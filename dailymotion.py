@@ -1,4 +1,4 @@
-import requests
+﻿import requests
 import json
 
 
@@ -128,43 +128,43 @@ class Embed(CachedMagicAttributes):
 class User(CachedMagicAttributes):
 
     def contests(self, page=None, limit=None):
-        path = self.path + 'contests/'
+        path = self.path + '/contests'
         return PaginatedList(Contest, self.access_token, path, page=page, limit=limit)
 
     def fans(self, page=None, limit=None):
-        path = self.path + 'fans/'
+        path = self.path + '/fans'
         return PaginatedList(User, self.access_token, path, page=page, limit=limit)
 
     def favorites(self, page=None, limit=None):
-        path = self.path + 'favorites/'
+        path = self.path + '/favorites'
         return PaginatedList(Video, self.access_token, path, page=page, limit=limit)
 
     def features(self, page=None, limit=None):
-        path = self.path + 'features/'
+        path = self.path + '/features'
         return PaginatedList(Video, self.access_token, path, page=page, limit=limit)
 
     def following(self, page=None, limit=None):
-        path = self.path + 'following/'
+        path = self.path + '/following'
         return PaginatedList(User, self.access_token, path, page=page, limit=limit)
 
     def friends(self, page=None, limit=None):
-        path = self.path + 'friends/'
+        path = self.path + '/friends'
         return PaginatedList(User, self.access_token, path, page=page, limit=limit)
 
     def groups(self, page=None, limit=None):
-        path = self.path + 'groups/'
+        path = self.path + '/groups'
         return PaginatedList(Group, self.access_token, path, page=page, limit=limit)
 
     def playlists(self, page=None, limit=None):
-        path = self.path + 'playlists/'
+        path = self.path + '/playlists'
         return PaginatedList(Playlist, self.access_token, path, page=page, limit=limit)
 
     def subscriptions(self, page=None, limit=None):
-        path = self.path + 'subscriptions/'
+        path = self.path + '/subscriptions'
         return PaginatedList(Video, self.access_token, path, page=page, limit=limit)
 
     def videos(self, page=None, limit=None):
-        path = self.path + 'videos/'
+        path = self.path + '/videos'
         return PaginatedList(Video, self.access_token, path, page=page, limit=limit)
 
 
